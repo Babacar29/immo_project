@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/customSupabaseClient';
+import { toast } from '@/components/ui/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 
 const ChatWidget = () => {
@@ -69,29 +70,90 @@ const ChatWidget = () => {
   }, [isOpen, conversationId, fetchMessages]);
 
   const ensureConversationExists = async () => {
-    if (!conversationId) return false;
+    if (!conversationId) {
+      console.error('Pas de conversation ID disponible');
+      return false;
+    }
+    
+    console.log('Vérification/création de la conversation:', conversationId);
+    
     // Try to create the conversation; if it already exists, ignore duplicate key errors (23505)
     const guestIdentifier = user ? null : `guest-${conversationId}`;
     const userId = user ? user.id : null;
-    const { error: insertError } = await supabase
-      .from('conversations')
-      .upsert(
-        [{ id: conversationId, guest_identifier: guestIdentifier, user_id: userId }],
-        { onConflict: 'id' }
-      );
+    
+    console.log('Données de la conversation:', { 
+      id: conversationId, 
+      guestIdentifier, 
+      userId,
+      userConnected: !!user 
+    });
 
-    if (insertError) {
-  // Upsert shouldn't raise duplicate errors, but if it does, proceed
-  if (insertError.code === '23505' || insertError.details?.includes('duplicate')) return true;
-      console.error('Error creating conversation:', insertError);
+    try {
+      const { error: insertError } = await supabase
+        .from('conversations')
+        .upsert(
+          [{ id: conversationId, guest_identifier: guestIdentifier, user_id: userId }],
+          { onConflict: 'id' }
+        );
+
+      if (insertError) {
+        // Vérifier si c'est un problème de structure de table
+        if (insertError.code === 'PGRST204' || insertError.message?.includes('Could not find')) {
+          console.error('❌ Erreur de structure de base de données:', insertError);
+          console.error('🔧 Solution: Exécutez le script create_chat_tables.sql dans votre console Supabase');
+          
+          if (typeof toast !== 'undefined') {
+            toast({
+              title: "Erreur de configuration",
+              description: "La base de données n'est pas correctement configurée. Contactez l'administrateur.",
+              variant: "destructive"
+            });
+          }
+          return false;
+        }
+        
+        // Upsert shouldn't raise duplicate errors, but if it does, proceed
+        if (insertError.code === '23505' || insertError.details?.includes('duplicate')) {
+          console.log('Conversation existe déjà (c\'est normal)');
+          return true;
+        }
+        
+        console.error('Erreur lors de la création de la conversation:', insertError);
+        console.error('Code d\'erreur:', insertError.code);
+        console.error('Détails:', insertError.details);
+        return false;
+      }
+      
+      console.log('Conversation créée/vérifiée avec succès');
+      return true;
+    } catch (error) {
+      console.error('Exception lors de la création de la conversation:', error);
+      
+      // Afficher un message d'erreur spécifique pour les problèmes de base de données
+      if (error.message?.includes('Could not find') || error.message?.includes('PGRST204')) {
+        console.error('🔧 La table conversations n\'a pas la bonne structure. Exécutez create_chat_tables.sql');
+        
+        if (typeof toast !== 'undefined') {
+          toast({
+            title: "Erreur de base de données",
+            description: "Tables de chat non configurées. Contactez l'administrateur.",
+            variant: "destructive"
+          });
+        }
+      }
+      
       return false;
     }
-    return true;
   };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (newMessage.trim() === '' || !conversationId) return;
+    if (newMessage.trim() === '' || !conversationId) {
+      console.log('Message vide ou pas de conversation ID');
+      return;
+    }
+
+    console.log('Tentative d\'envoi de message:', { conversationId, user: user?.id, message: newMessage });
 
     const conversationReady = await ensureConversationExists();
     if (!conversationReady) {
@@ -106,28 +168,61 @@ const ChatWidget = () => {
       sender_role: user ? 'user' : 'guest',
     };
 
-    const { data, error } = await supabase.from('messages').insert([messageData]).select();
-    if (error) {
-      console.error('Error sending message:', error);
-    } else {
+    console.log('Données du message à envoyer:', messageData);
+
+    try {
+      const { data, error } = await supabase.from('messages').insert([messageData]).select();
+      
+      if (error) {
+        console.error('Erreur lors de l\'envoi du message:', error);
+        // Afficher un toast d'erreur pour l'utilisateur
+        if (typeof toast !== 'undefined') {
+          toast({
+            title: "Erreur d'envoi",
+            description: "Impossible d'envoyer le message. Veuillez réessayer.",
+            variant: "destructive"
+          });
+        }
+        return;
+      }
+
+      console.log('Message envoyé avec succès:', data);
+      
       // Ajouter le message immédiatement à l'état local pour affichage instantané
       if (data && data[0]) {
-        setMessages((prev) => [...prev, data[0]]);
+        setMessages((prev) => {
+          // Éviter les doublons
+          const messageExists = prev.some(msg => msg.id === data[0].id);
+          if (messageExists) return prev;
+          return [...prev, data[0]];
+        });
       }
       setNewMessage('');
+
+    } catch (error) {
+      console.error('Exception lors de l\'envoi du message:', error);
+      if (typeof toast !== 'undefined') {
+        toast({
+          title: "Erreur d'envoi",
+          description: "Une erreur inattendue s'est produite. Veuillez réessayer.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
   return (
     <>
+      <div className="fixed bottom-20 right-4 z-50 text-sm font-medium text-foreground bg-background/80 backdrop-blur-sm rounded-md px-3 py-1 shadow-sm">
+        Besoin d'aide ?
+      </div>
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 50, scale: 0.9 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="fixed bottom-24 right-4 sm:right-8 z-50"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-24 right-4 z-50"
           >
             <Card className="w-[350px] h-[500px] flex flex-col shadow-2xl">
               <CardHeader className="flex flex-row items-center justify-between p-4 border-b">

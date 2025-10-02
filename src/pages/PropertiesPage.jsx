@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, MapPin, Bed, Bath, Square, Heart, Loader2, ArrowLeft, X, Euro, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -460,7 +461,7 @@ const PropertiesPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: index * 0.05 }}
                     >
-                      <Card className="property-card overflow-hidden group bg-card">
+                      <Card className="property-card overflow-hidden group bg-card h-full flex flex-col">
                         <div className="relative h-64">
                           <Link to={`/properties/${property.id}`}>
                             <img 
@@ -468,6 +469,11 @@ const PropertiesPage = () => {
                               alt={property.title}
                               src={property.main_image_url} />
                           </Link>
+                          {property.is_exclusive && (
+                            <div className="absolute top-4 left-4">
+                              <Badge className="bg-primary text-primary-foreground shadow-md">Exclusif</Badge>
+                            </div>
+                          )}
                           <div className="absolute top-4 right-4 bg-card/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-md">
                             <span className="text-sm font-semibold text-foreground">
                               {new Intl.NumberFormat('fr-FR').format(property.price)} F CFA
@@ -480,7 +486,7 @@ const PropertiesPage = () => {
                             <Heart className={`w-4 h-4 ${isFavorited ? 'text-red-500 fill-current' : 'text-foreground/70'}`} />
                           </button>
                         </div>
-                        <CardContent className="p-6">
+                        <CardContent className="p-6 flex-grow flex flex-col">
                           <h3 className="text-xl font-semibold text-foreground mb-2 truncate">
                             <Link to={`/properties/${property.id}`} className="hover:text-primary transition-colors">{property.title}</Link>
                           </h3>
@@ -493,19 +499,21 @@ const PropertiesPage = () => {
                             <div className="flex items-center"><Bath className="w-4 h-4 mr-1" /><span>{property.bathrooms}</span></div>
                             <div className="flex items-center"><Square className="w-4 h-4 mr-1" /><span>{property.area} m²</span></div>
                           </div>
-                          <div className="space-y-2">
-                            {property.video_url && (
-                              <VideoPlayButton 
-                                videoUrl={property.video_url} 
-                                propertyTitle={property.title}
-                                className="w-full"
-                              />
-                            )}
-                            <Link to={`/properties/${property.id}`} className="w-full">
-                              <Button className="w-full hero-gradient text-primary-foreground">
-                                Voir les détails
-                              </Button>
-                            </Link>
+                          <div className="mt-auto">
+                            <div className="space-y-2 min-h-[5rem] flex flex-col justify-end">
+                              {property.video_url && (
+                                <VideoPlayButton 
+                                  videoUrl={property.video_url} 
+                                  propertyTitle={property.title}
+                                  className="w-full"
+                                />
+                              )}
+                              <Link to={`/properties/${property.id}`} className="w-full">
+                                <Button className="w-full hero-gradient text-primary-foreground">
+                                  Voir les détails
+                                </Button>
+                              </Link>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>

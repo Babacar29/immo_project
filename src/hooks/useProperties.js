@@ -41,6 +41,9 @@ export const useProperties = ({ initialFilters = {} } = {}) => {
       if (filters.isFeatured !== undefined) {
         query = query.eq('is_featured', filters.isFeatured);
       }
+      if (filters.isExclusive !== undefined) {
+        query = query.eq('is_exclusive', filters.isExclusive);
+      }
       if (filters.limit) {
         query = query.limit(filters.limit);
       }

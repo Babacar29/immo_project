@@ -11,6 +11,7 @@ import DashboardPage from '@/pages/DashboardPage';
 import PropertiesPage from '@/pages/PropertiesPage';
 import PropertyDetailPage from '@/pages/PropertyDetailPage';
 import ContactPage from '@/pages/ContactPage';
+import ProposPage from '@/pages/ProposPage';
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import AdminPropertiesPage from '@/pages/AdminPropertiesPage';
 import AdminUsersPage from '@/pages/AdminUsersPage';
@@ -59,6 +60,7 @@ function AppRoutes() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/properties" element={<PropertiesPage />} />
       <Route path="/properties/:id" element={<PropertyDetailPage />} />
+      <Route path="/propos" element={<ProposPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/services" element={<ServicesPage />} />
 

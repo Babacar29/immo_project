@@ -15,8 +15,10 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { isValidVideoUrl } from '@/lib/videoUtils';
+import VideoUploader from '@/components/VideoUploader';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const AddPropertyForm = ({ onPropertyAdded, propertyToEdit }) => {
+const AddPropertyForm = ({ onSuccess, propertyToEdit }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState([]);
@@ -38,13 +40,14 @@ const AddPropertyForm = ({ onPropertyAdded, propertyToEdit }) => {
     type: 'villa',
     status: 'for_sale',
     is_featured: false,
+    is_exclusive: false,
     video_url: '',
   });
 
   const resetForm = () => {
     setFormData({
         title: '', description: '', location: '', address: '', latitude: '', longitude: '', price: '',
-        bedrooms: '', bathrooms: '', area: '', type: 'villa', status: 'for_sale', is_featured: false, video_url: '',
+    bedrooms: '', bathrooms: '', area: '', type: 'villa', status: 'for_sale', is_featured: false, is_exclusive: false, video_url: '',
     });
     setExistingImages([]);
     setImageFiles([]);
@@ -68,6 +71,7 @@ const AddPropertyForm = ({ onPropertyAdded, propertyToEdit }) => {
         type: propertyToEdit.type || 'villa',
         status: propertyToEdit.status || 'for_sale',
         is_featured: propertyToEdit.is_featured || false,
+        is_exclusive: propertyToEdit.is_exclusive || false,
         video_url: propertyToEdit.video_url || '',
       });
       setExistingImages(propertyToEdit.property_images || []);
@@ -135,6 +139,7 @@ const AddPropertyForm = ({ onPropertyAdded, propertyToEdit }) => {
         type: formData.type,
         status: formData.status,
         is_featured: !!formData.is_featured,
+        is_exclusive: !!formData.is_exclusive,
         video_url: formData.video_url,
         agent_id: user.id,
       };
@@ -210,7 +215,7 @@ const AddPropertyForm = ({ onPropertyAdded, propertyToEdit }) => {
         }
       }
       
-      if (onPropertyAdded) onPropertyAdded();
+      if (onSuccess) onSuccess();
 
     } catch (error) {
       console.error("Erreur lors de l'opération:", error);
@@ -290,36 +295,63 @@ const AddPropertyForm = ({ onPropertyAdded, propertyToEdit }) => {
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="video_url">URL de la vidéo (YouTube, Vimeo, etc.)</Label>
-        <div className="relative">
-          <Video className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            id="video_url" 
-            name="video_url" 
-            value={formData.video_url} 
-            onChange={handleChange} 
-            placeholder="https://www.youtube.com/watch?v=..." 
-            className={`pl-10 pr-10 ${formData.video_url && !isValidVideoUrl(formData.video_url) ? 'border-red-500' : formData.video_url && isValidVideoUrl(formData.video_url) ? 'border-green-500' : ''}`}
-          />
-          {formData.video_url && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              {isValidVideoUrl(formData.video_url) ? (
-                <CheckCircle className="h-4 w-4 text-green-500" />
-              ) : (
-                <AlertCircle className="h-4 w-4 text-red-500" />
+      <div className="space-y-4">
+        <Label className="text-base font-semibold">Vidéo de la propriété</Label>
+        
+        <Tabs defaultValue="url" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="url">Lien externe</TabsTrigger>
+            <TabsTrigger value="upload">Upload direct</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="url" className="space-y-3 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="video_url">URL de la vidéo (YouTube, Vimeo, etc.)</Label>
+              <div className="relative">
+                <Video className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  id="video_url" 
+                  name="video_url" 
+                  value={formData.video_url} 
+                  onChange={handleChange} 
+                  placeholder="https://www.youtube.com/watch?v=..." 
+                  className={`pl-10 pr-10 ${formData.video_url && !isValidVideoUrl(formData.video_url) ? 'border-red-500' : formData.video_url && isValidVideoUrl(formData.video_url) ? 'border-green-500' : ''}`}
+                />
+                {formData.video_url && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {isValidVideoUrl(formData.video_url) ? (
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <AlertCircle className="h-4 w-4 text-red-500" />
+                    )}
+                  </div>
+                )}
+              </div>
+              {formData.video_url && !isValidVideoUrl(formData.video_url) && (
+                <p className="text-sm text-red-500">
+                  URL non valide. Formats supportés : YouTube, Vimeo, Dailymotion, liens directs (MP4, WebM, OGG)
+                </p>
               )}
+              <p className="text-sm text-muted-foreground">
+                Exemples : https://youtube.com/watch?v=..., https://vimeo.com/123456789
+              </p>
             </div>
-          )}
-        </div>
-        {formData.video_url && !isValidVideoUrl(formData.video_url) && (
-          <p className="text-sm text-red-500">
-            URL non valide. Formats supportés : YouTube, Vimeo, Dailymotion, liens directs (MP4, WebM, OGG)
-          </p>
-        )}
-        <p className="text-sm text-muted-foreground">
-          Exemples : https://youtube.com/watch?v=..., https://vimeo.com/123456789
-        </p>
+          </TabsContent>
+          
+          <TabsContent value="upload" className="mt-4">
+            <VideoUploader
+              currentVideoUrl={formData.video_url}
+              onVideoUploaded={(videoData) => {
+                if (videoData) {
+                  setFormData(prev => ({ ...prev, video_url: videoData.url }));
+                } else {
+                  setFormData(prev => ({ ...prev, video_url: '' }));
+                }
+              }}
+              disabled={loading}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -378,6 +410,13 @@ const AddPropertyForm = ({ onPropertyAdded, propertyToEdit }) => {
         <Checkbox id="is_featured" name="is_featured" checked={formData.is_featured} onCheckedChange={(checked) => handleSelectChange('is_featured', checked)} />
         <Label htmlFor="is_featured" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           Mettre en vedette sur la page d'accueil
+        </Label>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox id="is_exclusive" name="is_exclusive" checked={formData.is_exclusive} onCheckedChange={(checked) => handleSelectChange('is_exclusive', checked)} />
+        <Label htmlFor="is_exclusive" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          Mandat exclusif (Propriété exclusive)
         </Label>
       </div>
 

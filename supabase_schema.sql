@@ -136,6 +136,11 @@ CREATE TABLE IF NOT EXISTS public.properties (
   is_featured BOOLEAN DEFAULT FALSE
 );
 
+-- Nouvelle colonne: propriété exclusive (mandat exclusif)
+-- Assure l'idempotence si la table existe déjà sans cette colonne
+ALTER TABLE public.properties
+  ADD COLUMN IF NOT EXISTS is_exclusive BOOLEAN DEFAULT FALSE;
+
 ALTER TABLE public.properties ENABLE ROW LEVEL SECURITY;
 
 -- Drop policies if they already exist to avoid duplicate errors

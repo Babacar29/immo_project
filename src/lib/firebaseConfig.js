@@ -8,8 +8,8 @@ import { getAuth } from 'firebase/auth';
 const firebaseConfig = {
   apiKey: "AIzaSyDV8lubZU6wceaO7Y4vhRGJQM-sffXRN84",
   authDomain: "nommad-immo.firebaseapp.com",
-  projectId: "nommad-immo",
-  storageBucket: "nommad-immo.appspot.com",
+  projectId: "nomad-immo",
+  storageBucket: "nomad-immo.appspot.com",
   messagingSenderId: "70792830681",
   appId: "1:70792830681:web:f21109767a0723973268c8",
   measurementId: "G-7BDVNS0Y1L"
@@ -28,7 +28,8 @@ const app = initializeApp(firebaseConfig);
 
 // Services Firebase
 export const db = getFirestore(app);
-export const functions = getFunctions(app);
+// Pin the region explicitly to avoid cross-region calls that can manifest as CORS/network errors
+export const functions = getFunctions(app, 'us-central1');
 export const auth = getAuth(app);
 
 // Configuration des fonctions pour l'Europe (optionnel)

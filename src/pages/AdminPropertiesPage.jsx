@@ -35,6 +35,7 @@ const AdminPropertiesPage = () => {
         status,
         type,
         is_featured,
+        is_exclusive,
         profiles (full_name)
       `)
       .order('created_at', { ascending: false });
@@ -195,6 +196,7 @@ const AdminPropertiesPage = () => {
                   <th className="p-4 font-medium">Statut</th>
                   <th className="p-4 font-medium">Type</th>
                   <th className="p-4 font-medium">En vedette</th>
+                  <th className="p-4 font-medium">Exclusive</th>
                   <th className="p-4 font-medium">Actions</th>
                 </tr>
               </thead>
@@ -221,6 +223,7 @@ const AdminPropertiesPage = () => {
                     </td>
                     <td className="p-4 capitalize">{property.type}</td>
                     <td className="p-4">{property.is_featured ? 'Oui' : 'Non'}</td>
+                    <td className="p-4">{property.is_exclusive ? 'Oui' : 'Non'}</td>
                     <td className="p-4">
                       <div className="flex items-center space-x-2">
                         <Button variant="ghost" size="icon" onClick={() => handleEditProperty(property)}>

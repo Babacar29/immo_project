@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, MapPin, ArrowRight, Home, Building, Key, Users, Bed, Bath, Square, Loader2, Star, Award } from 'lucide-react';
+import { Search, MapPin, ArrowRight, Home, Building, Key, Users, Bed, Bath, Square, Loader2, Star, Award, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -11,8 +12,22 @@ import Footer from '@/components/Footer';
 import { toast } from '@/components/ui/use-toast';
 import { useProperties } from '@/hooks/useProperties';
 import ChatWidget from '@/components/ChatWidget';
+import VideoPlayer from '@/components/VideoPlayer';
 
 const PropertyList = ({ properties, loading }) => {
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState(null);
+  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
+
+  const handleVideoPlay = (videoUrl) => {
+    setSelectedVideoUrl(videoUrl);
+    setIsVideoPlayerOpen(true);
+  };
+
+  const handleVideoClose = () => {
+    setIsVideoPlayerOpen(false);
+    setSelectedVideoUrl(null);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -22,53 +37,79 @@ const PropertyList = ({ properties, loading }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {properties.map((property, index) => (
-        <motion.div
-          key={property.id}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: index * 0.1 }}
-        >
-          <Card className="property-card overflow-hidden bg-card h-full flex flex-col">
-            <div className="relative h-64">
-              <Link to={`/properties/${property.id}`}>
-                <img 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                  alt={property.title}
-                  src={property.main_image_url} />
-              </Link>
-              <div className="absolute top-4 right-4 bg-card/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-md">
-                <span className="text-sm font-semibold text-foreground">
-                  {new Intl.NumberFormat('fr-FR').format(property.price)} F CFA
-                </span>
-              </div>
-            </div>
-            <CardContent className="p-6 flex-grow flex flex-col">
-              <h3 className="text-xl font-semibold text-foreground mb-2 truncate">
-                <Link to={`/properties/${property.id}`} className="hover:text-primary transition-colors">{property.title}</Link>
-              </h3>
-              <div className="flex items-center text-muted-foreground mb-4">
-                <MapPin className="w-4 h-4 mr-1" />
-                <span className="text-sm">{property.location}</span>
-              </div>
-              <div className="flex justify-between text-sm text-muted-foreground mb-6">
-                <div className="flex items-center"><Bed className="w-4 h-4 mr-1"/><span>{property.bedrooms}</span></div>
-                <div className="flex items-center"><Bath className="w-4 h-4 mr-1"/><span>{property.bathrooms}</span></div>
-                <div className="flex items-center"><Square className="w-4 h-4 mr-1"/><span>{property.area} m²</span></div>
-              </div>
-              <div className="mt-auto">
-                <Link to={`/properties/${property.id}`} className="w-full">
-                  <Button className="w-full hero-gradient text-primary-foreground">
-                    Voir les détails
-                  </Button>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {properties.map((property, index) => (
+          <motion.div
+            key={property.id}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: index * 0.1 }}
+          >
+            <Card className="property-card overflow-hidden bg-card h-full flex flex-col">
+              <div className="relative h-64">
+                <Link to={`/properties/${property.id}`}>
+                  <img 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                    alt={property.title}
+                    src={property.main_image_url} />
                 </Link>
+                {property.is_exclusive && (
+                  <div className="absolute top-4 left-4">
+                    <Badge className="bg-primary text-primary-foreground shadow-md">Exclusif</Badge>
+                  </div>
+                )}
+                <div className="absolute top-4 right-4 bg-card/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-md">
+                  <span className="text-sm font-semibold text-foreground">
+                    {new Intl.NumberFormat('fr-FR').format(property.price)} F CFA
+                  </span>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      ))}
-    </div>
+              <CardContent className="p-6 flex-grow flex flex-col">
+                <h3 className="text-xl font-semibold text-foreground mb-2 truncate">
+                  <Link to={`/properties/${property.id}`} className="hover:text-primary transition-colors">{property.title}</Link>
+                </h3>
+                <div className="flex items-center text-muted-foreground mb-4">
+                  <MapPin className="w-4 h-4 mr-1" />
+                  <span className="text-sm">{property.location}</span>
+                </div>
+                <div className="flex justify-between text-sm text-muted-foreground mb-6">
+                  <div className="flex items-center"><Bed className="w-4 h-4 mr-1"/><span>{property.bedrooms}</span></div>
+                  <div className="flex items-center"><Bath className="w-4 h-4 mr-1"/><span>{property.bathrooms}</span></div>
+                  <div className="flex items-center"><Square className="w-4 h-4 mr-1"/><span>{property.area} m²</span></div>
+                </div>
+                <div className="mt-auto">
+                  <div className="space-y-2 min-h-[5rem] flex flex-col justify-end">
+                    {property.video_url && (
+                      <Button 
+                        onClick={() => handleVideoPlay(property.video_url)}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        <Play className="w-4 h-4 mr-2" />
+                        Voir la vidéo
+                      </Button>
+                    )}
+                    <Link to={`/properties/${property.id}`} className="w-full">
+                      <Button className="w-full hero-gradient text-primary-foreground">
+                        Voir les détails
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+      
+      {/* Modal vidéo */}
+      <VideoPlayer 
+        videoUrl={selectedVideoUrl}
+        isOpen={isVideoPlayerOpen}
+        onClose={handleVideoClose}
+      />
+    </>
   );
 };
 
@@ -101,7 +142,7 @@ const HomePage = () => {
   });
 
   const { properties: exclusiveProperties, loading: exclusiveLoading } = useProperties({ 
-    initialFilters: { isFeatured: false, limit: 6 }
+    initialFilters: { isExclusive: true, limit: 6 }
   });
 
   const services = [
@@ -141,7 +182,10 @@ const HomePage = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-xl md:text-2xl mb-8 text-white"
+            className="text-xl md:text-2xl mb-8 text-[hsl(20,34%,35%)]"
+            style={{
+              textShadow: '1px 1px 0 white, -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white'
+            }}
           >
             Découvrez une sélection de biens d'exception à travers le monde.
           </motion.p>

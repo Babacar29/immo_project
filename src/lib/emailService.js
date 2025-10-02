@@ -1,67 +1,51 @@
-// Service d'envoi d'emails via Firebase Functions
-import { httpsCallable } from 'firebase/functions';
-import { functions } from './firebaseConfig';
+import emailjs from '@emailjs/browser';
 
-// Fonction pour envoyer un email de contact
-export const sendContactEmail = async (formData) => {
+// Constantes pour EmailJS
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+/**
+ * Envoie un message de contact via EmailJS
+ * @param {Object} formData - Les données du formulaire
+ * @param {string} formData.name - Nom de l'expéditeur
+ * @param {string} formData.email - Email de l'expéditeur
+ * @param {string} formData.phone - Numéro de téléphone (optionnel)
+ * @param {string} formData.subject - Sujet du message
+ * @param {string} formData.message - Contenu du message
+ */
+export const sendContactMessage = async (formData) => {
   try {
-    // Référence à la Cloud Function
-    const sendEmail = httpsCallable(functions, 'sendContactEmail');
-    
-    // Données à envoyer
-    const emailData = {
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone || '',
+    const templateParams = {
+      to_email: 'contact@nomadimmo.org',
+      from_name: formData.name,
+      from_email: formData.email,
+      phone: formData.phone || 'Non spécifié',
       subject: formData.subject,
-      message: formData.message,
-      timestamp: new Date().toISOString(),
-      to: 'contact@nomadimmo.org'
+      message: formData.message
     };
 
-    // Appel de la fonction
-    const result = await sendEmail(emailData);
-    
-    return {
-      success: true,
-      data: result.data,
-      message: 'Email envoyé avec succès'
-    };
+    const result = await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      templateParams,
+      EMAILJS_PUBLIC_KEY
+    );
 
+    if (result.status === 200) {
+      return {
+        success: true,
+        message: 'Votre message a été envoyé avec succès !'
+      };
+    } else {
+      throw new Error('Erreur lors de l\'envoi du message');
+    }
   } catch (error) {
-    console.error('Erreur lors de l\'envoi de l\'email:', error);
-    
+    console.error('Erreur EmailJS:', error);
     return {
       success: false,
-      error: error.message,
-      message: 'Erreur lors de l\'envoi de l\'email'
-    };
-  }
-};
-
-// Fonction pour sauvegarder le message dans Firestore (backup)
-export const saveContactMessage = async (formData) => {
-  try {
-    const saveMessage = httpsCallable(functions, 'saveContactMessage');
-    
-    const messageData = {
-      ...formData,
-      timestamp: new Date().toISOString(),
-      status: 'received'
-    };
-
-    const result = await saveMessage(messageData);
-    
-    return {
-      success: true,
-      data: result.data
-    };
-
-  } catch (error) {
-    console.error('Erreur lors de la sauvegarde:', error);
-    return {
-      success: false,
-      error: error.message
+      error: error.text || error.message,
+      message: 'Impossible d\'envoyer votre message. Veuillez réessayer ou nous contacter directement à contact@nomadimmo.org'
     };
   }
 };
