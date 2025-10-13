@@ -54,11 +54,6 @@ const PropertyList = ({ properties, loading }) => {
                     alt={property.title}
                     src={property.main_image_url} />
                 </Link>
-                {property.is_exclusive && (
-                  <div className="absolute top-4 left-4">
-                    <Badge className="bg-primary text-primary-foreground shadow-md">Exclusif</Badge>
-                  </div>
-                )}
                 <div className="absolute top-4 right-4 bg-card/80 backdrop-blur-sm px-3 py-1 rounded-lg shadow-md">
                   <div className="text-sm font-semibold text-foreground">
                     <div className="flex items-center gap-1">
@@ -68,6 +63,21 @@ const PropertyList = ({ properties, loading }) => {
                       ~ {new Intl.NumberFormat('fr-FR').format(Math.round(property.price / 655.957))} €
                     </div>
                   </div>
+                </div>
+                <div className="absolute top-4 left-4">
+                  {property.is_exclusive && (
+                    <Badge className="bg-primary text-primary-foreground shadow-md mb-2 block">Exclusif</Badge>
+                  )}
+                  {property.video_url && (
+                    <Button 
+                      onClick={() => handleVideoPlay(property.video_url)}
+                      variant="outline"
+                      size="icon"
+                      className="bg-card/80 backdrop-blur-sm shadow-md hover:bg-accent transition-colors"
+                    >
+                      <Play className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
               <CardContent className="p-6 flex-grow flex flex-col">

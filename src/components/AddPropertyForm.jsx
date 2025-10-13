@@ -257,12 +257,34 @@ const AddPropertyForm = ({ onSuccess, propertyToEdit }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="latitude">Latitude</Label>
-          <Input id="latitude" name="latitude" type="number" step="any" value={formData.latitude} onChange={handleChange} />
+          <Label htmlFor="latitude">
+            Latitude 
+            <span className="text-xs text-muted-foreground ml-1">(optionnel)</span>
+          </Label>
+          <Input 
+            id="latitude" 
+            name="latitude" 
+            type="number" 
+            step="any" 
+            value={formData.latitude} 
+            onChange={handleChange} 
+            placeholder="Ex: 14.7167" 
+          />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="longitude">Longitude</Label>
-          <Input id="longitude" name="longitude" type="number" step="any" value={formData.longitude} onChange={handleChange} />
+          <Label htmlFor="longitude">
+            Longitude 
+            <span className="text-xs text-muted-foreground ml-1">(optionnel)</span>
+          </Label>
+          <Input 
+            id="longitude" 
+            name="longitude" 
+            type="number" 
+            step="any" 
+            value={formData.longitude} 
+            onChange={handleChange} 
+            placeholder="Ex: 17.4677" 
+          />
         </div>
       </div>
 

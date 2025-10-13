@@ -469,11 +469,6 @@ const PropertiesPage = () => {
                               alt={property.title}
                               src={property.main_image_url} />
                           </Link>
-                          {property.is_exclusive && (
-                            <div className="absolute top-4 left-4">
-                              <Badge className="bg-primary text-primary-foreground shadow-md">Exclusif</Badge>
-                            </div>
-                          )}
                           <div className="absolute top-4 right-4 bg-card/80 backdrop-blur-sm px-3 py-1 rounded-lg shadow-md">
                             <div className="text-sm font-semibold text-foreground">
                               <div className="flex items-center gap-1">
@@ -484,12 +479,19 @@ const PropertiesPage = () => {
                               </div>
                             </div>
                           </div>
-                          <button
-                            onClick={() => handleFavoriteToggle(property.id, isFavorited)}
-                            className="absolute top-4 left-4 p-2 bg-card/80 backdrop-blur-sm rounded-full shadow-md hover:bg-accent transition-colors"
-                          >
-                            <Heart className={`w-4 h-4 ${isFavorited ? 'text-red-500 fill-current' : 'text-foreground/70'}`} />
-                          </button>
+                          <div className="absolute top-4 left-4 flex flex-col items-start gap-2">
+                            {property.is_exclusive && (
+                              <Badge className="bg-primary text-primary-foreground shadow-md">Exclusif</Badge>
+                            )}
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              onClick={() => handleFavoriteToggle(property.id, isFavorited)}
+                              className="bg-card/80 backdrop-blur-sm shadow-md hover:bg-accent transition-colors w-9 h-9 p-0"
+                            >
+                              <Heart className={`w-4 h-4 ${isFavorited ? 'text-red-500 fill-current' : 'text-foreground/70'}`} />
+                            </Button>
+                          </div>
                         </div>
                         <CardContent className="p-6 flex-grow flex flex-col">
                           <h3 className="text-xl font-semibold text-foreground mb-2 truncate">
