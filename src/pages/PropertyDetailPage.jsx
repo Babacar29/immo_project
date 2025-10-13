@@ -353,8 +353,13 @@ const PropertyDetailPage = () => {
                           <span>{property.location}</span>
                         </div>
                       </div>
-                      <div className="text-3xl font-bold text-primary">
-                        {new Intl.NumberFormat('fr-FR').format(property.price)} F CFA
+                      <div className="text-right">
+                        <div className="text-3xl font-bold text-primary">
+                          {new Intl.NumberFormat('fr-FR').format(property.price)} F CFA
+                        </div>
+                        <div className="text-lg font-medium text-muted-foreground">
+                          ~ {new Intl.NumberFormat('fr-FR').format(Math.round(property.price / 655.957))} €
+                        </div>
                       </div>
                     </div>
                     

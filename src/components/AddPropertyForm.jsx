@@ -57,24 +57,31 @@ const AddPropertyForm = ({ onSuccess, propertyToEdit }) => {
 
   useEffect(() => {
     if (propertyToEdit) {
+      // Convertir les valeurs numériques en chaînes pour les champs de formulaire
       setFormData({
         title: propertyToEdit.title || '',
         description: propertyToEdit.description || '',
         location: propertyToEdit.location || '',
         address: propertyToEdit.address || '',
-        latitude: propertyToEdit.latitude || '',
-        longitude: propertyToEdit.longitude || '',
-        price: propertyToEdit.price || '',
-        bedrooms: propertyToEdit.bedrooms || '',
-        bathrooms: propertyToEdit.bathrooms || '',
-        area: propertyToEdit.area || '',
+        latitude: propertyToEdit.latitude !== null ? String(propertyToEdit.latitude) : '',
+        longitude: propertyToEdit.longitude !== null ? String(propertyToEdit.longitude) : '',
+        price: propertyToEdit.price !== null ? String(propertyToEdit.price) : '',
+        bedrooms: propertyToEdit.bedrooms !== null ? String(propertyToEdit.bedrooms) : '',
+        bathrooms: propertyToEdit.bathrooms !== null ? String(propertyToEdit.bathrooms) : '',
+        area: propertyToEdit.area !== null ? String(propertyToEdit.area) : '',
         type: propertyToEdit.type || 'villa',
         status: propertyToEdit.status || 'for_sale',
-        is_featured: propertyToEdit.is_featured || false,
-        is_exclusive: propertyToEdit.is_exclusive || false,
+        is_featured: Boolean(propertyToEdit.is_featured),
+        is_exclusive: Boolean(propertyToEdit.is_exclusive),
         video_url: propertyToEdit.video_url || '',
       });
-      setExistingImages(propertyToEdit.property_images || []);
+
+      // Récupérer les images existantes
+      const images = Array.isArray(propertyToEdit.property_images) 
+        ? propertyToEdit.property_images 
+        : [];
+      setExistingImages(images);
+      
       setImageFiles([]);
       setImagePreviews([]);
       setImagesToRemove([]);
@@ -298,12 +305,28 @@ const AddPropertyForm = ({ onSuccess, propertyToEdit }) => {
       <div className="space-y-4">
         <Label className="text-base font-semibold">Vidéo de la propriété</Label>
         
-        <Tabs defaultValue="url" className="w-full">
+        <Tabs defaultValue="upload" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="url">Lien externe</TabsTrigger>
             <TabsTrigger value="upload">Upload direct</TabsTrigger>
+            <TabsTrigger value="url">Lien externe</TabsTrigger>
           </TabsList>
           
+          
+          
+          <TabsContent value="upload" className="mt-4">
+            <VideoUploader
+              currentVideoUrl={formData.video_url}
+              onVideoUploaded={(videoData) => {
+                if (videoData) {
+                  setFormData(prev => ({ ...prev, video_url: videoData.url }));
+                } else {
+                  setFormData(prev => ({ ...prev, video_url: '' }));
+                }
+              }}
+              disabled={loading}
+            />
+          </TabsContent>
+
           <TabsContent value="url" className="space-y-3 mt-4">
             <div className="space-y-2">
               <Label htmlFor="video_url">URL de la vidéo (YouTube, Vimeo, etc.)</Label>
@@ -336,20 +359,6 @@ const AddPropertyForm = ({ onSuccess, propertyToEdit }) => {
                 Exemples : https://youtube.com/watch?v=..., https://vimeo.com/123456789
               </p>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="upload" className="mt-4">
-            <VideoUploader
-              currentVideoUrl={formData.video_url}
-              onVideoUploaded={(videoData) => {
-                if (videoData) {
-                  setFormData(prev => ({ ...prev, video_url: videoData.url }));
-                } else {
-                  setFormData(prev => ({ ...prev, video_url: '' }));
-                }
-              }}
-              disabled={loading}
-            />
           </TabsContent>
         </Tabs>
       </div>

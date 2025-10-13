@@ -59,10 +59,15 @@ const PropertyList = ({ properties, loading }) => {
                     <Badge className="bg-primary text-primary-foreground shadow-md">Exclusif</Badge>
                   </div>
                 )}
-                <div className="absolute top-4 right-4 bg-card/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-md">
-                  <span className="text-sm font-semibold text-foreground">
-                    {new Intl.NumberFormat('fr-FR').format(property.price)} F CFA
-                  </span>
+                <div className="absolute top-4 right-4 bg-card/80 backdrop-blur-sm px-3 py-1 rounded-lg shadow-md">
+                  <div className="text-sm font-semibold text-foreground">
+                    <div className="flex items-center gap-1">
+                      <span>{new Intl.NumberFormat('fr-FR').format(property.price)} F CFA</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      ~ {new Intl.NumberFormat('fr-FR').format(Math.round(property.price / 655.957))} €
+                    </div>
+                  </div>
                 </div>
               </div>
               <CardContent className="p-6 flex-grow flex flex-col">

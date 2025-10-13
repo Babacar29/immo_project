@@ -28,14 +28,8 @@ const AdminPropertiesPage = () => {
     let query = supabase
       .from('properties')
       .select(`
-        id,
-        title,
-        location,
-        price,
-        status,
-        type,
-        is_featured,
-        is_exclusive,
+        *,
+        property_images (*),
         profiles (full_name)
       `)
       .order('created_at', { ascending: false });
@@ -64,9 +58,30 @@ const AdminPropertiesPage = () => {
     setIsFormOpen(true);
   };
 
-  const handleEditProperty = (property) => {
-    setEditingProperty(property);
-    setIsFormOpen(true);
+  const handleEditProperty = async (property) => {
+    try {
+      // Récupérer toutes les données de la propriété, y compris les images
+      const { data, error } = await supabase
+        .from('properties')
+        .select(`
+          *,
+          property_images (*)
+        `)
+        .eq('id', property.id)
+        .single();
+
+      if (error) throw error;
+      
+      setEditingProperty(data);
+      setIsFormOpen(true);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des détails de la propriété:', error);
+      toast({ 
+        title: 'Erreur', 
+        description: 'Impossible de charger les détails de la propriété.', 
+        variant: 'destructive' 
+      });
+    }
   };
 
   const handleDeleteProperty = async (propertyId) => {
