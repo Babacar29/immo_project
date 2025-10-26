@@ -73,6 +73,10 @@ const PropertiesPage = () => {
     { id: 'penthouse', label: 'Penthouses' },
     { id: 'riad', label: 'Riads' },
     { id: 'chalet', label: 'Chalets' },
+    { id: 'showroom', label: 'Showrooms' },
+    { id: 'terrain', label: 'Terrains' },
+    { id: 'agricultural_land', label: 'Terrain Agricole' },
+    { id: 'industrial_land', label: 'Terrain Industriel' },
   ];
 
   const handleFavoriteToggle = async (propertyId, isFavorited) => {

@@ -254,6 +254,8 @@ const HomePage = () => {
                         <SelectItem value="penthouse">Penthouse</SelectItem>
                         <SelectItem value="riad">Riad</SelectItem>
                         <SelectItem value="chalet">Chalet</SelectItem>
+                        <SelectItem value="showroom">Showroom</SelectItem>
+                        <SelectItem value="terrain">Terrain</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

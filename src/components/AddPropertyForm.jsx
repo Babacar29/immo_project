@@ -416,6 +416,8 @@ const AddPropertyForm = ({ onSuccess, propertyToEdit }) => {
               <SelectItem value="penthouse">Penthouse</SelectItem>
               <SelectItem value="riad">Riad</SelectItem>
               <SelectItem value="chalet">Chalet</SelectItem>
+              <SelectItem value="showroom">Showroom</SelectItem>
+              <SelectItem value="terrain">Terrain</SelectItem>
               <SelectItem value="agricultural_land">Terrain Agricole</SelectItem>
               <SelectItem value="industrial_land">Terrain industriel</SelectItem>
             </SelectContent>

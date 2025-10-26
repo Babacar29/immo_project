@@ -51,7 +51,7 @@ const ContactPage = () => {
   const contactInfo = [
     { icon: Phone, title: "Hotline internationale", details: "+221 71 032 66 71", description: "Support multilingue" },
     { icon: Mail, title: "Email", details: "contact@nomadimmo.org", description: "Réponse sous 24h" },
-    { icon: MapPin, title: "Adresse", details: "Présence mondiale", description: "Bureaux à Dakar, Paris, New York" },
+    { icon: MapPin, title: "Adresse", details: "Présence Nationale", description: "Bureaux à Dakar, Petite Côte" },
     { icon: Clock, title: "Horaires", details: "24h/24, 7j/7", description: "Nous suivons le soleil" }
   ];
 
