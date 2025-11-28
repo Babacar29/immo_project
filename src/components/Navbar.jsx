@@ -48,7 +48,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-3">
-            <img src="https://horizons-cdn.hostinger.com/aeb6ee32-cd60-4177-a292-439842f478ee/e7daf38a2f0da6ffe7fa31e1662bbc09.jpg" alt="Logo Nomad'immo" className="h-10 w-auto rounded-md" />
+            <img src="https://res.cloudinary.com/dlzulzump/image/upload/v1764357424/nommad_immo_logo_iqfa1q.jpg" alt="Logo Nomad'immo" className="h-10 w-auto rounded-md" />
             <span className="text-xl font-bold gradient-text hidden sm:inline">Nomad'immo</span>
           </Link>
 

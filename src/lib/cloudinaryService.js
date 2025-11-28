@@ -2,7 +2,7 @@ import { toast } from '@/components/ui/use-toast';
 
 // Configuration Cloudinary
 const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-const CLOUDINARY_UPLOAD_PRESET = 'nomadimmo_videos'; // À créer dans votre dashboard Cloudinary
+const CLOUDINARY_UPLOAD_PRESET = 'immo_vidéos'; // À créer dans votre dashboard Cloudinary
 
 /**
  * Upload une vidéo vers Cloudinary avec gestion avancée des timeouts et retry
