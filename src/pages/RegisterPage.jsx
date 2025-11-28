@@ -43,7 +43,7 @@ const RegisterPage = () => {
         <img
           className="w-full h-full object-cover opacity-20" 
           alt="Intérieur moderne et luxueux"
-          src="https://images.unsplash.com/photo-1600585152225-358b5cba6999?q=80&w=2670&auto=format&fit=crop" />
+          src="https://res.cloudinary.com/dlzulzump/image/upload/v1764357424/nommad_immo_logo_iqfa1q.jpg?q=80&w=2670&auto=format&fit=crop" />
       </div>
       
       <motion.div
@@ -54,7 +54,7 @@ const RegisterPage = () => {
       >
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-3 mb-6">
-            <img src="https://horizons-cdn.hostinger.com/aeb6ee32-cd60-4177-a292-439842f478ee/e7daf38a2f0da6ffe7fa31e1662bbc09.jpg" alt="Logo Nomad'immo" className="h-12 w-auto rounded-md" />
+            <img src="https://res.cloudinary.com/dlzulzump/image/upload/v1764357424/nommad_immo_logo_iqfa1q.jpg" alt="Logo Nomad'immo" className="h-12 w-auto rounded-md" />
             <span className="text-2xl font-bold gradient-text">Nomad'immo</span>
           </Link>
         </div>
