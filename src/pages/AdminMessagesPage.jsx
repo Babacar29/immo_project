@@ -169,11 +169,11 @@ const AdminMessagesPage = () => {
                           <p className="font-semibold truncate">
                             {getConversationDisplayName(convo)}
                           </p>
-                          {convo.unread_count > 0 && (
+                          {(convo.unread_count && convo.unread_count > 0) ? (
                             <span className="bg-destructive text-destructive-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                               {convo.unread_count}
                             </span>
-                          )}
+                          ) : null}
                         </div>
                         <p className={cn("text-sm truncate", selectedConversation?.conversation_id === convo.conversation_id ? "text-primary-foreground/80" : "text-muted-foreground")}>
                           {convo.last_message}

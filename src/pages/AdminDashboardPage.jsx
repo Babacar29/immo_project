@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { LayoutDashboard, Home, Users, DollarSign, MessageSquare, BarChart2, CalendarCheck, Settings, ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,10 +6,22 @@ import Navbar from '@/components/Navbar';
 import { Link, useNavigate } from 'react-router-dom';
 
 const AdminDashboardPage = () => {
+  const [conversationsCount, setConversationsCount] = useState(0);
+
+  useEffect(() => {
+    const fetchConversationsCount = async () => {
+      const { count, error } = await supabase
+        .from('conversations')
+        .select('*', { count: 'exact', head: true });
+      if (!error) setConversationsCount(count);
+    };
+    fetchConversationsCount();
+  }, []);
+
   const adminMenuItems = [
     { title: "Gestion Propriétés", icon: Home, link: "/admin/properties" },
     { title: "Gestion Utilisateurs", icon: Users, link: "/admin/users" },
-    { title: "Messagerie", icon: MessageSquare, link: "/admin/messages" },
+    { title: `Messagerie (${conversationsCount})`, icon: MessageSquare, link: "/admin/messages" },
     { title: "Gestion Ventes", icon: DollarSign, link: "/admin/sales" },
     { title: "Statistiques", icon: BarChart2, link: "/admin/stats" },
     { title: "Calendrier Visites", icon: CalendarCheck, link: "/admin/visits" },

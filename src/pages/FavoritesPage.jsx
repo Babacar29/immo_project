@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/customSupabaseClient';
-import { useProperties } from '@/hooks/useProperties';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
 import { Helmet } from 'react-helmet';
@@ -15,44 +14,83 @@ import { Helmet } from 'react-helmet';
 const FavoritesPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [favoriteIds, setFavoriteIds] = useState([]);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const fetchFavoriteIds = async () => {
-      if (user) {
-        setInitialLoading(true);
-        const { data, error } = await supabase
-          .from('favorites')
-          .select('property_id')
-          .eq('user_id', user.id);
-        
-        if (error) {
-          console.error("Error fetching favorite ids", error);
-          toast({ title: "Erreur", description: "Impossible de charger vos favoris.", variant: "destructive" });
-        } else {
-          setFavoriteIds(data.map(f => f.property_id));
-        }
-        setInitialLoading(false);
+  const fetchFavorites = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const { data: favoritesData, error: favoritesError } = await supabase
+        .from('favorites')
+        .select('property_id')
+        .eq('user_id', user.id);
+      
+      if (favoritesError) {
+        console.error("Error fetching favorites:", favoritesError);
+        toast({ title: "Erreur", description: "Impossible de charger vos favoris.", variant: "destructive" });
+        setLoading(false);
+        return;
       }
+
+      const favoriteIds = favoritesData.map(f => f.property_id);
+
+      if (favoriteIds.length === 0) {
+        setProperties([]);
+        setLoading(false);
+        return;
+      }
+
+      const { data: propertiesData, error: propertiesError } = await supabase
+        .from('properties')
+        .select(`
+          *,
+          property_images (
+            image_url,
+            is_primary
+          ),
+          profiles (
+            full_name,
+            avatar_url
+          )
+        `)
+        .in('id', favoriteIds)
+        .order('created_at', { ascending: false });
+
+      if (propertiesError) {
+        console.error("Error fetching properties:", propertiesError);
+        toast({ title: "Erreur", description: "Impossible de charger les propriétés.", variant: "destructive" });
+      } else {
+        const propertiesWithImages = propertiesData.map(p => {
+          const primaryImage = p.property_images.find(img => img.is_primary);
+          const fallbackImage = p.property_images[0];
+          return {
+            ...p,
+            main_image_url: primaryImage?.image_url || fallbackImage?.image_url || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=2574&auto=format&fit=crop',
+            agent_name: p.profiles?.full_name || 'Agent non spécifié',
+          };
+        });
+        setProperties(propertiesWithImages);
+      }
+    } catch (err) {
+      console.error("Error in fetchFavorites:", err);
+      toast({ title: "Erreur", description: "Impossible de charger vos favoris.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchFavoriteIds();
+    fetchFavorites();
   }, [user]);
-  
-  const { properties, loading: propertiesLoading, refetch } = useProperties({ initialFilters: { favorite_of: favoriteIds } });
-  
-  useEffect(() => {
-    if (!initialLoading) {
-      refetch({ favorite_of: favoriteIds });
-    }
-  }, [initialLoading, favoriteIds, refetch]);
-  
-  const loading = initialLoading || propertiesLoading;
 
   const handleRemoveFavorite = async (propertyId) => {
-    const previousFavorites = [...favoriteIds];
-    setFavoriteIds(favoriteIds.filter(id => id !== propertyId));
+    const previousProperties = [...properties];
+    setProperties(properties.filter(p => p.id !== propertyId));
 
     const { error } = await supabase
       .from('favorites')
@@ -61,7 +99,7 @@ const FavoritesPage = () => {
       .eq('property_id', propertyId);
 
     if (error) {
-      setFavoriteIds(previousFavorites);
+      setProperties(previousProperties);
       toast({ title: "Erreur", description: "Impossible de supprimer le favori.", variant: "destructive" });
     } else {
       toast({ title: "Favori supprimé" });

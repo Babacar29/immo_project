@@ -14,23 +14,51 @@ const DashboardPage = () => {
   const { user, userProfile, loading } = useAuth();
   const navigate = useNavigate();
   const [favoritesCount, setFavoritesCount] = useState(0);
+  const [messagesCount, setMessagesCount] = useState(0);
+  const [visitsCount, setVisitsCount] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) {
       navigate('/login');
     }
     if (user) {
-      const fetchFavoritesCount = async () => {
-        const { count, error } = await supabase
-          .from('favorites')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id);
-        
-        if (!error) {
-          setFavoritesCount(count);
+      const fetchCounts = async () => {
+        try {
+          // Fetch favorites count
+          const { count: favCount, error: favError } = await supabase
+            .from('favorites')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id);
+          
+          if (!favError) {
+            setFavoritesCount(favCount);
+          }
+
+          // Fetch messages count from conversations
+          const { count: msgCount, error: msgError } = await supabase
+            .from('messages')
+            .select('*', { count: 'exact', head: true })
+            .eq('sender_id', user.id);
+          
+          if (!msgError) {
+            setMessagesCount(msgCount);
+          }
+
+          // Fetch visits count
+          const { count: visCount, error: visError } = await supabase
+            .from('visits')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .eq('status', 'confirmed');
+          
+          if (!visError) {
+            setVisitsCount(visCount);
+          }
+        } catch (error) {
+          console.error('Error fetching counts:', error);
         }
       };
-      fetchFavoritesCount();
+      fetchCounts();
     }
   }, [user, loading, navigate]);
 
@@ -56,13 +84,13 @@ const DashboardPage = () => {
     },
     {
       title: "Messages",
-      value: "3",
+      value: messagesCount,
       icon: MessageSquare,
       color: "text-green-500"
     },
     {
       title: "Visites planifiées",
-      value: "2",
+      value: visitsCount,
       icon: Home,
       color: "text-purple-500"
     }
