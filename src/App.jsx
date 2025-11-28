@@ -19,6 +19,7 @@ import AdminMessagesPage from '@/pages/AdminMessagesPage';
 import AdminSalesPage from '@/pages/AdminSalesPage';
 import AdminStatsPage from '@/pages/AdminStatsPage';
 import AdminVisitsPage from '@/pages/AdminVisitsPage';
+import VisitsPage from '@/pages/VisitsPage';
 import AccountSettingsPage from '@/pages/AccountSettingsPage';
 import FavoritesPage from '@/pages/FavoritesPage';
 import ServicesPage from '@/pages/ServicesPage';
@@ -93,6 +94,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <UserMessagesPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/visits" 
+        element={
+          <ProtectedRoute>
+            <VisitsPage />
           </ProtectedRoute>
         } 
       />

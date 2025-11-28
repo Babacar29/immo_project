@@ -190,7 +190,7 @@ const DashboardPage = () => {
                     <Button 
                       className="w-full justify-start" 
                       variant="outline"
-                      onClick={() => navigate('/admin/visits')}
+                      onClick={() => navigate(userProfile?.role === 'admin' ? '/admin/visits' : '/visits')}
                     >
                       <CalendarIcon className="w-4 h-4 mr-2" />
                       Voir mes plannings de visite
