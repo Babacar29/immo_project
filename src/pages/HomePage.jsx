@@ -409,7 +409,7 @@ const HomePage = () => {
               <div className="text-lg">Clients nomades</div>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} >
-              <div className="text-4xl font-bold mb-2">10+</div>
+              <div className="text-4xl font-bold mb-2">5+</div>
               <div className="text-lg">Langues parlées</div>
             </motion.div>
           </div>
